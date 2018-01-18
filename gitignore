@@ -33,6 +33,6 @@ metastore_db/
 check*/
 
 # ignore cases
-idea/
+.idea/
 target/
 */target
