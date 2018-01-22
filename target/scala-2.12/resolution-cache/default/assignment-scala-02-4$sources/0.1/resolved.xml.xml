@@ -4,7 +4,7 @@
 		module="assignment-scala-02-4$sources"
 		revision="0.1"
 		status="integration"
-		publication="20180122003810"
+		publication="20180122140054"
 	/>
 	<configurations>
 		<conf name="compile" visibility="public" description=""/>

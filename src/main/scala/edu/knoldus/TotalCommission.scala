@@ -9,46 +9,40 @@ abstract class Commission {
   val value: Int
 }
 
-case class ClientSideCommission (value: Int) extends Commission {}
+case class ClientSideCommission(override val value: Int) extends Commission
 
-case class StreetSideCommission (value: Int) extends Commission {}
+case class StreetSideCommission(override val value: Int) extends Commission
 
 
-object TypesOfCommission {
-
-  def main (args: Array[String]) {
+object TypesOfCommission extends App {
 
     val log = Logger.getLogger (getClass)
 
-    sealed trait CommissionDisplay {
+  private sealed trait CommissionDisplay {
 
-      def totalDisplayCommission: String
-    }
+    def totalDisplayCommission: String
 
-    class TotalCommission[T <: Commission : TypeTag] (simpleCommission: List[T]) {
+  }
+
+  class TotalCommission[T <: Commission : TypeTag] (simpleCommission: List[T]) {
 
       def getTotalCommission: String = {
         simpleCommission.totalDisplayCommission
       }
-    }
 
-    def sum (xs: List[Int]): Int = {
-      xs match {
-        case x :: tail => x + sum (tail) // if there is an element, add it to the sum of the tail
-        case Nil => 0 // if there are no elements, then the sum is 0
-      }
-    }
+    private implicit class TypeChecking[T <: Commission : TypeTag] (simpleCommission: List[T]) extends CommissionDisplay {
 
-    implicit class typeChecking[T <: Commission : TypeTag] (simpleCommission: List[T]) extends CommissionDisplay {
+      val total = simpleCommission.map(_.value).sum
+    def totalDisplayCommission: String = {
 
-      override def totalDisplayCommission: String = {
-
-        typeOf [T] match {
-          case client: List[ClientSideCommission] if client =:= typeOf [ClientSideCommission] => s"Client commission = ${simpleCommission.map (_.value).sum}"
-          case street: List[streetSideCommission] if street =:= typeOf [StreetSideCommission] => s" Street Commission = ${simpleCommission.map (_.value).sum}"
-          case commission: List[Commission] if commission =:= typeOf [Commission] => s"Mingled Commission = ${simpleCommission.map (_.value).sum}"
+      typeOf[List[T]] match {
+          case client if client =:= typeOf[List[ClientSideCommission]] => s"Client commission = ${total}"
+          case street if street =:= typeOf[List[StreetSideCommission]]=> s" Street Commission = ${total}"
+          case commission if commission =:= typeOf[List[Commission]]=> s"Mingled Commission = ${total}"
+          case _  => "empty"
         }
       }
+    }
     }
 
     val value1 = 5
@@ -56,8 +50,16 @@ object TypesOfCommission {
     val clientObj = ClientSideCommission (value1)
     val clientObj1 = ClientSideCommission (value2)
     val clientObj2 = ClientSideCommission (value2)
-    val totalOfList = List (clientObj, clientObj1)
+    val totalOfList = List (clientObj, clientObj1,clientObj2)
     val totalClientCommission = new TotalCommission[ClientSideCommission](totalOfList)
     log.debug (s"${totalClientCommission.getTotalCommission}\n")
-  }
+
+  val streetObj = StreetSideCommission (value1)
+  val streetObj1 = StreetSideCommission (value2)
+  val streetObj2 = StreetSideCommission (value2)
+  val totalOfList1 = List (streetObj, streetObj1,streetObj2)
+  val totalClientCommission1 = new TotalCommission[StreetSideCommission](totalOfList1)
+  log.debug (s"${totalClientCommission1.getTotalCommission}\n")
+
 }
+
